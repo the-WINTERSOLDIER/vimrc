@@ -1,4 +1,4 @@
-:let mapleader = "\<Space>"
+let mapleader = "\<Space>"
 syntax on
 
 set tabstop=4
@@ -32,25 +32,29 @@ set noswapfile
 " highligh as you type whilst searching
 set incsearch 
 
+"hide the mode status in the lastline if airline is installed
+set noshowmode
+
 set scrolloff=8
-
-" column on the left for pointing errors and stuff
-set signcolumn=yes
-
-" Plugins
-call plug#begin('~/.vim/plugged')
-Plug 'Valloric/YouCompleteMe',
+" Plug 'Valloric/YouCompleteMe',
+call plug#begin()
+Plug 'ycm-core/YouCompleteMe'
+Plug 'itchyny/lightline.vim'
+Plug 'morhetz/gruvbox'
+Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
 call plug#end()
+
 colorscheme gruvbox
 set background=dark
+inoremap <M-Left> <C-o>:tabprevious<CR>
+inoremap <M-Right> <C-o>:tabnext<CR>
+
 " -------------------------------YCM-CONFIG-------------------------
 "  CTRL-SPACE triggers autocomplete
-let g:ycm_global_ycm_extra_conf = "~/.vim/plugged/YouCompleteMe/.ycm_extra_conf.py"
+let g:ycm_global_ycm_extra_conf = '~/.vim/plugged/YouCompleteMe/.ycm_extra_conf.py'
 set completeopt-=preview
 nnoremap <leader>jc :YcmCompleter GoToDeclaration<CR>
 nnoremap <leader>jd :YcmCompleter GoToDefinition<CR>
-nnoremap <F5> :YcmForceCompileAndDiagnostics<CR>
-
 let g:ycm_min_num_of_chars_for_completion = 2
 let g:ycm_error_symbol = 'e>'
 let g:ycm_warning_symbol = 'w>'
@@ -79,39 +83,47 @@ let g:ycm_echo_current_diagnostic = 1
 " Or, when you have vim supporting virtual text
 " let g:ycm_echo_current_diagnostic = 'virtual-text'
 " let g:ycm_show_diagnostics_ui = 1
+
+" Enable Semantic Highlighting
 let g:ycm_enable_semantic_highlighting=1
+let g:ycm_enable_inlay_hints=1
 let g:ycm_autoclose_preview_window_after_insertion = 1
 
-" Statusline
-function! GitBranch()
-      return system("git rev-parse --abbrev-ref HEAD 2>/dev/null | tr -d '\n'")
-  endfunction
 
-function! StatuslineGit()
-       let l:branchname = GitBranch()
-       return strlen(l:branchname) > 0?l:branchname:''
-endfunction
+"---------------------------------------LIGHTLINE CONF -----------------------
+set showtabline=2
+set laststatus=2
+let g:lightline={'colorscheme' : 'darcula',
+                \'active':{'left' :[[ 'mode', 'paste' ],
+                \                  [ 'readonly'], ['filename', 'modified']],
+                \          'right':[[ 'filetype', 'percent' , 'lineinfo' ]]
+                \  }
+                \,}
+let g:lightline.tabline = {
+                \ 'left': [[ 'tabs']],
+                \ 'right': [[ 'close' ],[ 'bufnum']], 
+                \ 'separator': { 'left': '', 'right': '' },
+                \ 'subseparator': {'left': '|', 'right': '|' },
+                \ }
+    
+let g:lightline.separator = { 'left': '', 'right': '' }
+let g:lightline.subseparator = {'left': '|', 'right': '|' }
 
-hi FileTypeColor ctermbg=70 ctermfg=0
-hi FileDir ctermbg=214 ctermfg=0
-hi DefaultColor ctermbg=59 ctermfg=255
 
-          set laststatus=2
-          set statusline=
-          set statusline+=%#FileDir#
-          set statusline+=\ [\ buf:\ %-2.2n\]\ 
-          set statusline+=%#DefaultColor#
-          set statusline+=\ %-6f
-          set statusline+=\ %-m
-          set statusline+=\ %-r
-          set statusline+=\ %-w
-          set statusline+=\ %-h
-          set statusline+=%#FileTypeColor#
-          set statusline+=\ %y 
-          set statusline+=\ %#DefaultColor#
-          set statusline+=%=
-          set statusline+=%#warningmsg#
-          set statusline+=%*
-          set statusline+=%#PmenuSel#
-          set statusline+=\ %4l/%-4L
-          set statusline+=
+"-----------------------------------KEYBINDINGS--------------------------
+"save in insert mode and return back to insert mode
+inoremap <F2> <C-O>:w<CR>
+" jump to last accessed tab:             g<Tab>
+inoremap <M-Left> <C-O>:tabprevious<CR>
+" open a file under cursor in a new tab : <Ctrl-w>gf 
+"close unmodified windows : eg help windows
+noremap <F4> :q<CR>
+
+inoremap <S-F4> <C-O>:tabclose<CR>
+" Key Bindings for DEVELOPMENT
+" Assuming vim was opened in root directory of the projeckt.
+inoremap <C-b> <C-O>./build.sh<CR>
+
+"--------------SourceVIMRC--------------
+inoremap <C-r> <C-O>:source ~/.vimrc<CR>
+
